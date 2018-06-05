@@ -25,7 +25,7 @@ public class CommandServer_pid : MonoBehaviour
 		// client = GameObject.Find("SocketIO").GetComponent<SocketIOComponent>();
 		client = GameObject.Find("SocketClient").GetComponent<SocketClient_pid>();
 		client.On("open", OnOpen);
-		client.On ("reset", OnReset);
+		client.On("reset", OnReset);
 		client.On("steer", OnSteer);
 		client.On("manual", onManual);
 		_carController = CarRemoteControl.GetComponent<CarController>();
@@ -61,6 +61,7 @@ public class CommandServer_pid : MonoBehaviour
 
 	void OnReset(JSONObject jsonObject)
 	{
+                Debug.Log("RESET");
 		SceneManager.LoadScene("LakeTrackAutonomous_pid");
 		EmitTelemetry ();
 	}
@@ -95,11 +96,21 @@ public class CommandServer_pid : MonoBehaviour
 				Debug.Log("Collect data from car ...");
 				Dictionary<string, string> data = new Dictionary<string, string>();
 				var cte = wpt.CrossTrackError (_carController);
+                var targ0 = wpt.NextWaypoint(_carController);
+                var head0 = wpt.HeadingTo(_carController, targ0);
+                var dist0 = wpt.DistanceTo(_carController, targ0);
+                var targ1 = wpt.NextNextWaypoint(_carController);
+                var head1 = wpt.HeadingTo(_carController, targ1);
+                var dist1 = wpt.DistanceTo(_carController, targ1);
 				Debug.Log(cte);
 				data["steering_angle"] = _carController.CurrentSteerAngle.ToString("N4");
 				data["throttle"] = _carController.AccelInput.ToString("N4");
-				data["speed"] = _carController.CurrentSpeed.ToString("N4");
+				data["speed"] = _carController.CurrentSignedSpeed.ToString("N4");
 				data["cte"] = cte.ToString("N4");
+				data["head0"] = head0.ToString("N4");
+				data["dist0"] = dist0.ToString("N4");
+				data["head1"] = head1.ToString("N4");
+				data["dist1"] = dist1.ToString("N4");
 				data ["process"] = 1.ToString();
 				//data["image"] = Convert.ToBase64String(CameraHelper.CaptureFrame(FrontFacingCamera));
 				//client.Emit("telemetry", new JSONObject(data));

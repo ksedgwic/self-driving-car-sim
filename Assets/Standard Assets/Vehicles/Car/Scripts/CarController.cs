@@ -146,6 +146,17 @@ namespace UnityStandardAssets.Vehicles.Car
 
 		public float CurrentSpeed{ get { return m_Rigidbody.velocity.magnitude * 2.23693629f; } }
 
+		public float CurrentSignedSpeed{
+            get {
+                var speed = m_Rigidbody.velocity.magnitude * 2.23693629f;
+				if (Vector3.Angle (transform.forward, m_Rigidbody.velocity) < 50f) {
+                    return speed;
+                } else {
+                    return -speed;
+                }
+            }
+        }
+
 		public float MaxSpeed{ get { return m_Topspeed; } }
 
 		public float Revs { get; private set; }

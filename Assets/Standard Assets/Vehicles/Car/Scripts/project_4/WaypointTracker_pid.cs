@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace UnityStandardAssets.Vehicles.Car
 {
-
+    
 	// Way to around multiple returns
 	public class WaypointTracker_pid
 	{
@@ -28,7 +28,7 @@ namespace UnityStandardAssets.Vehicles.Car
 		}
 
 		// Compute the next waypoint we should go to
-		private int NextWaypoint(CarController cc) {
+		public int NextWaypoint(CarController cc) {
 			Vector3 p = cc.transform.position;
 			float closestLen = 100000; // large number
 			int closestWaypoint = 0;
@@ -55,6 +55,25 @@ namespace UnityStandardAssets.Vehicles.Car
 			}
 			return closestWaypoint;
 		}
+
+        public int NextNextWaypoint(CarController cc) {
+            return (NextWaypoint(cc) + 1) % waypoints.Count;
+        }
+
+        public float HeadingTo(CarController cc, int wp) {
+            Vector3 heading = waypoints[wp] - cc.transform.position;
+			heading.y = 0;
+            var forwardA = cc.transform.rotation * Vector3.forward;
+            var forwardB = Quaternion.LookRotation(heading) * Vector3.forward;
+            var angleA = Mathf.Atan2(forwardA.x, forwardA.z) * Mathf.Rad2Deg;
+            var angleB = Mathf.Atan2(forwardB.x, forwardB.z) * Mathf.Rad2Deg;
+            return Mathf.DeltaAngle(angleA, angleB);
+        }
+
+        public float DistanceTo(CarController cc, int wp) {
+            Vector3 heading = waypoints[wp] - cc.transform.position;
+            return heading.magnitude;
+        }
 
 		public float CrossTrackError(CarController cc) {
 			var next_wp = NextWaypoint (cc);
